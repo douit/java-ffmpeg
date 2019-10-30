@@ -1,0 +1,30 @@
+# 本地测试环境
+spring:
+  datasource:
+    druid:
+      username: root
+      password: password123KBL
+      url: jdbc:mysql://127.0.0.1:3306/video?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+      min-idle: 5
+      max-active: 50
+      initial-size: 10
+      time-between-eviction-runs-millis: 3600
+      validation-query: select 1
+
+  servlet:
+    multipart:
+      max-file-size: 10240MB
+      max-request-size: 10240MB
+
+pagehelper:
+  reasonable: true
+
+oss:
+  end-point: https://oss-cn-shanghai.aliyuncs.com
+  access-key-id: LTAI4FthnjLUjfTKRAqpDufC
+  access-key-secret: qO4hUjjMNksoZAa664iLN6DkkC3QY4
+  bucket-name: video-test-carbule8-xyz
+
+video:
+  local-path: /var/videos/
+  access-url:  https://video-test-carbule8-xyz.oss-cn-shanghai.aliyuncs.com

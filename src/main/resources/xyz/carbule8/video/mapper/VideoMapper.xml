@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.carbule8.video.mapper.VideoMapper">
+  <resultMap id="BaseResultMap" type="xyz.carbule8.video.pojo.Video">
+    <id column="v_id" jdbcType="CHAR" property="vId" />
+    <result column="v_name" jdbcType="VARCHAR" property="vName" />
+    <result column="upload_time" jdbcType="TIMESTAMP" property="uploadTime" />
+    <result column="v_status" jdbcType="VARCHAR" property="vStatus" />
+    <result column="v_suffix" jdbcType="VARCHAR" property="vSuffix" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    v_id, v_name, upload_time, v_status, v_suffix
+  </sql>
+  <select id="selectByExample" parameterType="xyz.carbule8.video.pojo.VideoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from video
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from video
+    where v_id = #{vId,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from video
+    where v_id = #{vId,jdbcType=CHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="xyz.carbule8.video.pojo.VideoExample">
+    delete from video
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="xyz.carbule8.video.pojo.Video">
+    insert into video (v_id, v_name, upload_time, 
+      v_status, v_suffix)
+    values (#{vId,jdbcType=CHAR}, #{vName,jdbcType=VARCHAR}, #{uploadTime,jdbcType=TIMESTAMP}, 
+      #{vStatus,jdbcType=VARCHAR}, #{vSuffix,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="xyz.carbule8.video.pojo.Video">
+    insert into video
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="vId != null">
+        v_id,
+      </if>
+      <if test="vName != null">
+        v_name,
+      </if>
+      <if test="uploadTime != null">
+        upload_time,
+      </if>
+      <if test="vStatus != null">
+        v_status,
+      </if>
+      <if test="vSuffix != null">
+        v_suffix,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="vId != null">
+        #{vId,jdbcType=CHAR},
+      </if>
+      <if test="vName != null">
+        #{vName,jdbcType=VARCHAR},
+      </if>
+      <if test="uploadTime != null">
+        #{uploadTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="vStatus != null">
+        #{vStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="vSuffix != null">
+        #{vSuffix,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="xyz.carbule8.video.pojo.VideoExample" resultType="java.lang.Long">
+    select count(*) from video
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update video
+    <set>
+      <if test="record.vId != null">
+        v_id = #{record.vId,jdbcType=CHAR},
+      </if>
+      <if test="record.vName != null">
+        v_name = #{record.vName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.uploadTime != null">
+        upload_time = #{record.uploadTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.vStatus != null">
+        v_status = #{record.vStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.vSuffix != null">
+        v_suffix = #{record.vSuffix,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update video
+    set v_id = #{record.vId,jdbcType=CHAR},
+      v_name = #{record.vName,jdbcType=VARCHAR},
+      upload_time = #{record.uploadTime,jdbcType=TIMESTAMP},
+      v_status = #{record.vStatus,jdbcType=VARCHAR},
+      v_suffix = #{record.vSuffix,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="xyz.carbule8.video.pojo.Video">
+    update video
+    <set>
+      <if test="vName != null">
+        v_name = #{vName,jdbcType=VARCHAR},
+      </if>
+      <if test="uploadTime != null">
+        upload_time = #{uploadTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="vStatus != null">
+        v_status = #{vStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="vSuffix != null">
+        v_suffix = #{vSuffix,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where v_id = #{vId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="xyz.carbule8.video.pojo.Video">
+    update video
+    set v_name = #{vName,jdbcType=VARCHAR},
+      upload_time = #{uploadTime,jdbcType=TIMESTAMP},
+      v_status = #{vStatus,jdbcType=VARCHAR},
+      v_suffix = #{vSuffix,jdbcType=VARCHAR}
+    where v_id = #{vId,jdbcType=CHAR}
+  </update>
+</mapper>

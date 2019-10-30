@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>上传</title>
+    <script src="/lib/jquery.min.js"></script>
+    <script src="/js/upload.js"></script>
+</head>
+
+<body>
+<form action="/upload" method="POST">
+    <input type="file" name="file" id="file" >
+    <input type="button" value="提交" onclick="upload()" id="submit-button">
+</form>
+<span>上传进度: </span>
+<progress id="progress-bar" max="100" value="0"></progress>
+<span class="upload-status"></span>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>视频列表</title>
+    <script src="/lib/jquery.min.js"></script>
+    <style>
+        .name {
+            width: 500px;
+            display: inline-block;
+        }
+        .status {
+            width: 100px;
+            display: inline-block;
+            color: #ffbc1a;
+        }
+        .transcoding-failed .upload-oss-failed {
+            color: #ff3820;
+        }
+        .complete {
+            color: rgba(0,186,20,0.66);
+        }
+        .upload-time {
+            color: #555555;
+        }
+        .delete {
+            width: 50px;
+            display: inline-block;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<a href="/upload">上传视频</a>
+<ul>
+    <li th:each="video : ${data}" th:switch="${video.vStatus}">
+        <a class="name" th:href="@{|/watch/${video.vId}|}" th:text="${video.vName}"></a>
+        <span class="status upload-success" th:case="UPLOAD_SUCCESS">排队中</span>
+        <span class="status transcoding" th:case="TRANSCODING" style="color: #fa0;">转码中</span>
+        <span class="status transcoding-success" th:case="TRANSCODING_SUCCESS">转码成功</span>
+        <span class="status transcoding-failed" th:case="TRANSCODING_FAILED" style="color: red;">转码失败</span>
+        <span class="status upload-oss-failed" th:case="UPLOAD_OSS_FAILED" style="color: red;">上传oss失败</span>
+        <span class="status complete" th:case="COMPLETE" >可观看</span>
+        <span class="status upload-oss" th:case="UPLOAD_OSS">上传oss中</span>
+        <span class="upload-time" th:text="${#dates.format(video.uploadTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+    </li>
+</ul>
+<div class="page">
+    <a th:href="${data.pageNum - 1 <= 1 ? '/list' : data.pageNum - 1}" th:if="${data.pageNum > 1}">上一页</a>
+    <span th:text="|${data.pageNum} / ${data.pages} 共 ${data.total} 条数据|"></span>
+    <a th:href="|/list/page/${data.pageNum + 1}|" th:if="${data.pageNum < data.pages}">下一页</a><br>
+</div>
+</body>
+</html>

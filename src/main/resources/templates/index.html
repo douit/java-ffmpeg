@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>主页</title>
+    <style>
+        body {
+            background: #e5e5e5;
+        }
+
+        /* 瀑布流最外层 */
+        #root {
+            margin: 0 auto;
+            width: 900px;
+            column-count: 5;
+            column-width: 240px;
+            column-gap: 20px;
+        }
+
+        /* 每一列图片包含层 */
+        .item {
+            margin-bottom: 10px;
+            /* 防止多列布局，分页媒体和多区域上下文中的意外中断 */
+            break-inside: avoid;
+            background: #fff;
+            border-radius: 20px;
+        }
+
+        /*  .item:hover {
+              box-shadow: 2px 2px 2px rgba(0, 0, 0, .5);
+          }*/
+
+        /* 图片 */
+        .itemImg {
+            width: 100%;
+            vertical-align: middle;
+        }
+
+        /* 图片下的信息包含层 */
+        .userInfo {
+            padding: 5px 10px;
+        }
+
+        .username {
+            margin-left: 5px;
+            /*text-shadow: 2px 2px 2px rgba(0, 0, 0, .3);*/
+            word-break: break-all;
+        }
+
+        .page {
+            margin: 10px auto;
+            width: 500px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+<div id="root">
+    <div class="item" th:each="video : ${data}">
+        <a th:href="@{|/watch/${video.vId}|}">
+            <img class="itemImg" th:src="@{|${accessUrl}/${video.vId}/screen-5.jpg|}" alt=""/>
+        </a>
+        <div class="userInfo">
+            <span class="username" th:text="${video.vName}"></span>
+        </div>
+    </div>
+</div>
+<div class="page">
+    <a th:href="${data.pageNum - 1 <= 1 ? '/' : data.pageNum - 1}" th:if="${data.pageNum > 1}">上一页</a>
+    <span th:text="|${data.pageNum} / ${data.pages} 共 ${data.total} 条数据|"></span>
+    <a th:href="|/page/${data.pageNum + 1}|" th:if="${data.pageNum < data.pages}">下一页</a><br>
+</div>
+</body>
+
+</html>

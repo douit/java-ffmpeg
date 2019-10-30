@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${data.vName}"></title>
+    <script src="/lib/TcPlayer-2.2.0.js" charset="utf-8"></script>
+    <style>
+        .box {
+            width: 1000px;
+            margin: 0 auto;
+        }
+        .screenshot {
+            width: 1000px;
+        }
+        .screenshot img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+
+    <div id="id_test_video" style="width:1000px; height:500px; margin: 10px auto;"></div>
+
+    <div class="screenshots">
+        <div class="screenshot" th:each="i : ${#numbers.sequence(1, 10)}">
+<!--            <img th:src="@{${accessUrl + '/screenshots/' + data.vId + '/screen-' + i + '.jpg'}}" alt="">-->
+            <img th:src="@{|${accessUrl}/${data.vId}/screen-${i}.jpg|}" alt="">
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    /*<![CDATA[*/
+    var vId = '[[${accessUrl}]]/[[${data.vId}]]/video.m3u8';
+    var player = new TcPlayer('id_test_video', {
+        "m3u8": vId,
+        //"flv": "http://2157.liveplay.myqcloud.com/live/2157_358535a.flv", //增加了一个flv的播放地址，用于PC平台的播放 请替换成实际可用的播放地址
+        "autoplay": false,      //iOS下safari浏览器，以及大部分移动端浏览器是不开放视频自动播放这个能力的
+        "width": '1000',//视频的显示宽度，请尽量使用视频分辨率宽度
+        "height": '500'//视频的显示高度，请尽量使用视频分辨率高度
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

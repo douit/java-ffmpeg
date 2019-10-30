@@ -6,6 +6,7 @@ mvnw.cmd
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+application-prod.yml
 
 ### STS ###
 .apt_generated

@@ -7,7 +7,6 @@ mvnw.cmd
 !**/src/main/**
 !**/src/test/**
 
-src/main/resources/application-prod.yml
 
 ### STS ###
 .apt_generated

@@ -1,0 +1,2 @@
+# java-ffmpeg
+java调用ffmpeg实现视频的切片并将视频上传到阿里云对象存储中

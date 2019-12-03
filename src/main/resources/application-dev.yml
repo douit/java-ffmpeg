@@ -11,23 +11,28 @@ spring:
       time-between-eviction-runs-millis: 3600
       validation-query: select 1
 
+  # 文件上传
   servlet:
     multipart:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
+  # 模板引擎缓存
   thymeleaf:
     cache: false
 
+# 分页插件
 pagehelper:
   reasonable: true
 
+# 对象存储
 oss:
   end-point: https://oss-cn-shanghai.aliyuncs.com
   access-key-id: LTAI4FthnjLUjfTKRAqpDufC
   access-key-secret: qO4hUjjMNksoZAa664iLN6DkkC3QY4
   bucket-name: dev-carbule8-xyz
 
+# 视频路径
 video:
   local-path: C:/Users/carbu/Desktop/videos/
   access-url:  https://dev-carbule8-xyz.oss-cn-shanghai.aliyuncs.com

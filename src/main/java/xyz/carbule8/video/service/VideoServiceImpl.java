@@ -1,4 +1,4 @@
-package xyz.carbule8.video.service.impl;
+package xyz.carbule8.video.service;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -7,7 +7,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import xyz.carbule8.video.config.OSSConfig;
 import xyz.carbule8.video.config.VideoConfig;
@@ -18,7 +18,6 @@ import xyz.carbule8.video.mapper.VideoMapper;
 import xyz.carbule8.video.pojo.Video;
 import xyz.carbule8.video.pojo.VideoExample;
 import xyz.carbule8.video.pojo.VideoStatus;
-import xyz.carbule8.video.service.VideoService;
 import xyz.carbule8.video.util.SystemUtils;
 
 import java.io.File;
@@ -28,18 +27,20 @@ import java.util.List;
 @Service
 @Slf4j
 public class VideoServiceImpl implements VideoService {
+    private final VideoMapper videoMapper;
 
-    @Autowired
-    private VideoMapper videoMapper;
+    private final OSSConfig ossConfig;
 
-    @Autowired
-    private OSSConfig ossConfig;
+    private final TransService transService;
 
-    @Autowired
-    private TransService transService;
+    private final VideoConfig videoConfig;
 
-    @Autowired
-    private VideoConfig videoConfig;
+    public VideoServiceImpl(@Lazy TransService transService, VideoMapper videoMapper, OSSConfig ossConfig, VideoConfig videoConfig) {
+        this.transService = transService;
+        this.videoMapper = videoMapper;
+        this.ossConfig = ossConfig;
+        this.videoConfig = videoConfig;
+    }
 
     @Override
     public List<Video> findAll(VideoExample example) {

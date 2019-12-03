@@ -1,7 +1,6 @@
 package xyz.carbule8.video.controller;
 
 import com.github.pagehelper.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +12,14 @@ import xyz.carbule8.video.service.VideoService;
 
 @Controller
 public class PageController {
+    private final VideoService videoService;
 
-    @Autowired
-    private VideoService videoService;
+    private final VideoConfig videoConfig;
 
-    @Autowired
-    private VideoConfig videoConfig;
+    public PageController(VideoService videoService, VideoConfig videoConfig) {
+        this.videoService = videoService;
+        this.videoConfig = videoConfig;
+    }
 
     @GetMapping("/upload")
     public String uploadPage() {

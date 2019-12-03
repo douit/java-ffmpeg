@@ -1,7 +1,6 @@
 package xyz.carbule8.video.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,13 +11,11 @@ import xyz.carbule8.video.exception.*;
 import xyz.carbule8.video.pojo.HttpResult;
 import xyz.carbule8.video.pojo.Video;
 import xyz.carbule8.video.pojo.VideoStatus;
+import xyz.carbule8.video.service.TransService;
 import xyz.carbule8.video.service.VideoService;
-import xyz.carbule8.video.service.impl.TransService;
 import xyz.carbule8.video.util.SystemUtils;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,21 +24,22 @@ import java.util.UUID;
 @Controller
 @Slf4j
 public class VideoController {
+    private final VideoService videoService;
 
-    @Autowired
-    private VideoService videoService;
+    private final TransService transService;
 
-    @Autowired
-    private TransService transService;
+    private final VideoConfig videoConfig;
 
-    @Autowired
-    private VideoConfig videoConfig;
-
+    public VideoController(VideoService videoService, TransService transService, VideoConfig videoConfig) {
+        this.transService = transService;
+        this.videoConfig = videoConfig;
+        this.videoService = videoService;
+    }
 
     @PostMapping("/upload")
     @ResponseBody
-    public HttpResult upload(@ModelAttribute("file") MultipartFile file, Model model, HttpServletResponse response)
-            throws IOException, FormatNotSupportedException, UploadException, TranscodingException, NullUploadFileException, UploadOSSException {
+    public HttpResult upload(@ModelAttribute("file") MultipartFile file) throws FormatNotSupportedException, UploadException,
+            TranscodingException, NullUploadFileException {
 
         if (file == null || file.isEmpty()) {
             throw new NullUploadFileException("上传视频不可为空");
@@ -109,8 +107,7 @@ public class VideoController {
     }
 
     @GetMapping("/watch/{id}")
-    public String watchPage(@PathVariable("id") String id, Model model)
-            throws VideoNotFoundException, VideoNotCompleteException {
+    public String watchPage(@PathVariable("id") String id, Model model) throws VideoNotFoundException, VideoNotCompleteException {
         Video video = videoService.findById(id);
         if (video == null) {
             throw new VideoNotFoundException("视频不存在");

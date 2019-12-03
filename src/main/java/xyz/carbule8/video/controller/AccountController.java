@@ -1,6 +1,5 @@
 package xyz.carbule8.video.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,9 +14,11 @@ import javax.servlet.http.HttpSession;
 
 @Controller
 public class AccountController {
+    private final AccountService accountService;
 
-    @Autowired
-    private AccountService accountService;
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @PostMapping("/login")
     public String  login(@Validated @ModelAttribute("account") Account account, BindingResult error, Model model,

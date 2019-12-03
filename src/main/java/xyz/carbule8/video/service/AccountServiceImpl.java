@@ -1,4 +1,4 @@
-package xyz.carbule8.video.service.impl;
+package xyz.carbule8.video.service;
 
 import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;

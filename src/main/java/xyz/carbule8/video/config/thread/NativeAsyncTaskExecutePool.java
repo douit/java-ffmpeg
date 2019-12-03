@@ -2,7 +2,6 @@ package xyz.carbule8.video.config.thread;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -12,10 +11,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 @Slf4j
 @Configuration
-public class NativeAsyncTaskExecutePool extends AsyncConfigurerSupport { // 重写spring默认线程池
+public class NativeAsyncTaskExecutePool extends AsyncConfigurerSupport { // 重新定义spring默认线程池
+    private final TaskThreadPoolConfig config;
 
-    @Autowired
-    TaskThreadPoolConfig config;
+    public NativeAsyncTaskExecutePool(TaskThreadPoolConfig config) {
+        this.config = config;
+    }
 
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {

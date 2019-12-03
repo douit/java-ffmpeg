@@ -1,6 +1,7 @@
 package xyz.carbule8.video.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,13 +29,6 @@ public class DefaultExceptionHandler { // 统一异常处理
         return new HttpResult(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), "");
     }
 
-    // 异步异常 无法捕获
-    /*@ExceptionHandler(TranscodingException.class) // 返回json // 视频转码出现异常
-    public HttpResult transcodingExceptionHandler(HttpServletRequest request, HttpServletResponse response, TranscodingException ex) {
-        log.error(ex.getMessage(), ex);
-        return new HttpResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), "");
-    }*/
-
     @ExceptionHandler(VideoNotFoundException.class) // 返回视图 // 用户访问的视频不存在
     public ModelAndView videoNotFoundExceptionHandler(HttpServletRequest request, HttpServletResponse response, VideoNotFoundException ex) {
         log.warn(ex.getMessage(), ex);
@@ -48,13 +42,6 @@ public class DefaultExceptionHandler { // 统一异常处理
         return new HttpResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), "");
     }
 
-    // 异步异常 无法捕获
-    /*@ExceptionHandler(UploadOSSException.class) // 返回json // 后台上传视频到oss出现异常
-    public HttpResult uploadOSSExceptionHandler(HttpServletRequest request, HttpServletResponse response, UploadOSSException ex) {
-        log.error(ex.getMessage(), ex);
-        return new HttpResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), "");
-    }*/
-
     @ExceptionHandler(VideoNotCompleteException.class) // 返回视图 // 用户访问的视频还没有进入完成状态
     public ModelAndView videoNotCompleteExceptionHandler(HttpServletRequest request, HttpServletResponse response, VideoNotCompleteException ex) {
         log.warn(ex.getMessage());
@@ -64,6 +51,17 @@ public class DefaultExceptionHandler { // 统一异常处理
     @ExceptionHandler(MultipartException.class) // 用户上传文件中如果关闭或者刷新了页面会报这个异常
     public void MultipartExceptionHandler(HttpServletRequest request, HttpServletResponse response, MultipartException ex) {
         log.error("用户取消了上传操作");
+        log.error(ex.getMessage());
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public void clientAbortExceptionHandler(ClientAbortException ex) {
+        log.warn("用户终止了下载操作");
+        log.warn(ex.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public void illegalArgumentExceptionHandler(IllegalArgumentException ex) {
         log.error(ex.getMessage());
     }
 

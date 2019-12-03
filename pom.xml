@@ -110,6 +110,7 @@
                 </dependencies>
                 <configuration>
                     <configurationFile>src/main/resources/config/generatorConfig.xml</configurationFile>
+                    <overwrite>true</overwrite>
                 </configuration>
             </plugin>
             <plugin>

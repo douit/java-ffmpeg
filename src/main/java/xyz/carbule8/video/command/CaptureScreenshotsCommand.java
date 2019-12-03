@@ -10,7 +10,6 @@ import java.util.List;
 
 @Slf4j
 public class CaptureScreenshotsCommand extends SimpleExecute {
-
     @Override
     public String execute(Object... args) throws IOException {
         BufferedReader bufferedReader = this.startCommand(args);

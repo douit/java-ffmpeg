@@ -55,7 +55,6 @@ public class SystemUtils { // 自定义系统工具类
         return stringBuilder.reverse().toString();
     }
 
-
     /**
      * 使用加密的方式,利用465端口进行传输邮件,开启ssl
      *

@@ -1,4 +1,4 @@
-package xyz.carbule8.video.service.impl;
+package xyz.carbule8.video.service;
 
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
@@ -6,11 +6,11 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.ListObjectsRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import xyz.carbule8.video.command.CaptureScreenshotsCommand;
-import xyz.carbule8.video.command.SliceUpCommand;
+import xyz.carbule8.video.command.NewSliceUpCommand;
 import xyz.carbule8.video.config.OSSConfig;
 import xyz.carbule8.video.config.VideoConfig;
 import xyz.carbule8.video.exception.CaptureException;
@@ -18,7 +18,6 @@ import xyz.carbule8.video.exception.TranscodingException;
 import xyz.carbule8.video.exception.UploadOSSException;
 import xyz.carbule8.video.pojo.Video;
 import xyz.carbule8.video.pojo.VideoStatus;
-import xyz.carbule8.video.service.VideoService;
 import xyz.carbule8.video.util.SystemUtils;
 
 import javax.imageio.ImageIO;
@@ -35,45 +34,39 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class TransService {
+    private final VideoService videoService;
 
-    @Autowired
-    private VideoService videoService;
+    private final OSSConfig ossConfig;
 
-    @Autowired
-    private OSSConfig ossConfig;
+    private final VideoConfig videoConfig;
 
-
-    @Autowired
-    private VideoConfig videoConfig;
-
-    private String path = null;
+    public TransService(@Lazy VideoService videoService, OSSConfig ossConfig, VideoConfig videoConfig) {
+        this.videoService = videoService;
+        this.ossConfig = ossConfig;
+        this.videoConfig = videoConfig;
+    }
 
     @Async
     public void trans(Video video) throws TranscodingException {
-        this.path = videoConfig.getLocalPath() + video.getvId();
-        mkdirPath(this.path);
+        String path = videoConfig.getLocalPath() + video.getvId();
+        mkdirPath(path);
         // 开始转码
         video.setvStatus(VideoStatus.TRANSCODING.toString());
         videoService.update(video);
         long start = System.currentTimeMillis(); // 任务开始时间
         try {
-            new SliceUpCommand().execute(this.path + video.getvSuffix(), this.path);
-            File outfile = new File(this.path);
+//            new SliceUpCommand().execute(path + video.getvSuffix(), path);
+            new NewSliceUpCommand().execute(path + video.getvSuffix(), path);
+            File outfile = new File(path);
             if (outfile.list() == null || outfile.list().length <= 10) {
                 throw new TranscodingException("切片输出数量异常");
             }
             captureScreenshots(video);
-            SystemUtils.deleteLocalFiles(new File(this.path + video.getvSuffix()));
+            SystemUtils.deleteLocalFiles(new File(path + video.getvSuffix()));
             uploadOSS(video);
-        }/* catch (OSSException | ClientException e) { // 捕获OSS异常 用来清理垃圾数据
-            video.setvStatus(VideoStatus.UPLOAD_OSS_FAILED.toString());
-            videoService.update(video);
-            OSS ossClient = new OSSClientBuilder().build(ossConfig.getEndPoint(), ossConfig.getAccessKeyId(), ossConfig.getAccessKeySecret());
-            ListObjectsRequest listObjectsRequest = new ListObjectsRequest(ossConfig.getBucketName()).withMaxKeys(1000).withPrefix(video.getvId());
-            SystemUtils.deleteOSSFiles(ossClient, listObjectsRequest, ossConfig.getBucketName());
-            ossClient.shutdown();
-            throw new UploadOSSException(e);
-        }*/ catch (Exception e) {
+            // 删除原视频 节省空间
+            SystemUtils.deleteLocalFiles(new File(videoConfig.getLocalPath() + video.getvId()));
+        } catch (Exception e) {
             deleteFailedVideoFiles(video);
             throw new TranscodingException("转码出现错误", e);
         }
@@ -83,14 +76,14 @@ public class TransService {
     }
 
     private void uploadOSS(Video video) throws UploadOSSException {
+        String path = videoConfig.getLocalPath() + video.getvId(); // 每个方法里面都单独定义 保证多线程同时工作时 不会出现数据紊乱的情况
         OSS ossClient = new OSSClientBuilder().build(ossConfig.getEndPoint(), ossConfig.getAccessKeyId(), ossConfig.getAccessKeySecret());
-        File[] input = new File(this.path).listFiles();
+        File[] input = new File(path).listFiles();
         try {
             for (File f : input) {
                 log.info("OSS: {}/{}上传中...", video.getvId(), f.getName());
                 ossClient.putObject(ossConfig.getBucketName(), video.getvId() + "/" + f.getName(), f);
             }
-            SystemUtils.deleteLocalFiles(new File(videoConfig.getLocalPath() + video.getvId()));
         } catch (OSSException | ClientException e) { // 捕获OSS异常 用来清理垃圾数据
             video.setvStatus(VideoStatus.UPLOAD_OSS_FAILED.toString());
             videoService.update(video);
@@ -103,6 +96,7 @@ public class TransService {
     }
 
     private void captureScreenshots(Video video) throws IOException, CaptureException { // 视频截图
+        String path = videoConfig.getLocalPath() + video.getvId(); // 每个方法里面都单独定义 保证多线程同时工作时 不会出现数据紊乱的情况
         String outLog = new CaptureScreenshotsCommand() {
             @Override
             public List<String> getCommand(Object... args) {
@@ -112,7 +106,7 @@ public class TransService {
                 command.add(String.valueOf(args[0]));
                 return command;
             }
-        }.execute(this.path + video.getvSuffix());
+        }.execute(path + video.getvSuffix());
         // 从视频信息中解析时长
         String regexDuration = "Duration: (.*?), start: (.*?), bitrate: (\\d*) kb\\/s";
         Matcher m = Pattern.compile(regexDuration).matcher(outLog);
@@ -123,12 +117,12 @@ public class TransService {
 
             for (int i = 1; i <= 10; i++) {
                 log.info("{}/screen-{}.jpg截图中...", video.getvId(), i);
-                StringBuilder screenshotPath = new StringBuilder(this.path);
+                StringBuilder screenshotPath = new StringBuilder(path);
                 screenshotPath.append("/screen-");
                 screenshotPath.append(i);
                 screenshotPath.append(".jpg");
                 int captureTime = captureTimePointer * i;
-                new CaptureScreenshotsCommand().execute(captureTime, this.path + video.getvSuffix(), screenshotPath.toString());
+                new CaptureScreenshotsCommand().execute(captureTime, path + video.getvSuffix(), screenshotPath.toString());
                 while (checkImageColor(screenshotPath.toString(), 0.9f)) { // 如果图片中连续相同的像素点大于设定的百分比 就判定为是纯色的图片
                     log.warn("{}/screen-{}.jpg出现纯色现象 开始重新截图", video.getvId(), i);
                     SystemUtils.deleteLocalFiles(new File(screenshotPath.toString()));
@@ -137,7 +131,7 @@ public class TransService {
                     int randomTime = new Double(Math.random() * 10).intValue() + 1;
                     captureTime = captureTime / randomTime + randomTime;
                     // 对纯色照片重新截图
-                    new CaptureScreenshotsCommand().execute(captureTime, this.path + video.getvSuffix(), screenshotPath.toString());
+                    new CaptureScreenshotsCommand().execute(captureTime, path + video.getvSuffix(), screenshotPath.toString());
                 }
             }
         } else {
@@ -147,7 +141,8 @@ public class TransService {
 
     // 存在截图不输出的bug
     private void capture(Video video) throws IOException {
-        List<File> fileList = new ArrayList<>(Arrays.asList(new File(this.path).listFiles()));
+        String path = videoConfig.getLocalPath() + video.getvId(); // 每个方法里面都单独定义 保证多线程同时工作时 不会出现数据紊乱的情况
+        List<File> fileList = new ArrayList<>(Arrays.asList(new File(path).listFiles()));
         fileList.removeIf(file -> { // 删除集合中非ts文件
             String filename = file.getName();
             if (".ts".equals(filename.substring(filename.lastIndexOf(".")))) {
@@ -158,7 +153,7 @@ public class TransService {
         Collections.shuffle(fileList);
         for (int i = 1; i <= 10; i++) {
             int captureTime = 1;
-            StringBuilder screenshotPath = new StringBuilder(this.path);
+            StringBuilder screenshotPath = new StringBuilder(path);
             screenshotPath.append("/screen-");
             screenshotPath.append(i);
             screenshotPath.append(".jpg");
@@ -175,9 +170,10 @@ public class TransService {
 
     // 删除不完整文件
     private void deleteFailedVideoFiles(Video video) {
+        String path = videoConfig.getLocalPath() + video.getvId(); // 每个方法里面都单独定义 保证多线程同时工作时 不会出现数据紊乱的情况
         video.setvStatus(VideoStatus.TRANSCODING_FAILED.toString());
         videoService.update(video);
-        SystemUtils.deleteLocalFiles(new File(this.path + video.getvId()));
+        SystemUtils.deleteLocalFiles(new File(path + video.getvId()));
     }
 
     // 创建目录

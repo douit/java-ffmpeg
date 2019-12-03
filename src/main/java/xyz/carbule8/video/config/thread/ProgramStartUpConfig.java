@@ -1,15 +1,16 @@
 package xyz.carbule8.video.config.thread;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import xyz.carbule8.video.service.VideoService;
 
 @Configuration
 public class ProgramStartUpConfig implements CommandLineRunner {
+    private final VideoService videoService;
 
-    @Autowired
-    private VideoService videoService;
+    public ProgramStartUpConfig(VideoService videoService) {
+        this.videoService = videoService;
+    }
 
     @Override
     public void run(String... args) throws Exception {

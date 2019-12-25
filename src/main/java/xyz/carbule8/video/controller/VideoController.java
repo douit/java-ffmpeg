@@ -92,12 +92,12 @@ public class VideoController {
     public String deletePage(@PathVariable("id") String id, Model model) {
         try {
             Video selectVideo = videoService.findById(id);
-            videoService.delete(id);
             if (VideoStatus.UPLOAD_SUCCESS.toString().equals(selectVideo.getvStatus()) ||
                     VideoStatus.TRANSCODING.toString().equals(selectVideo.getvStatus()) ||
                     VideoStatus.UPLOAD_OSS.toString().equals(selectVideo.getvStatus())) {
                 throw new VideoNotCompleteException("该视频正在任务队列中 无法删除");
             }
+            videoService.delete(id);
         } catch (VideoNotFoundException | VideoNotCompleteException e) {
             model.addAttribute("message", e.getMessage());
             return "error";

@@ -44,6 +44,7 @@
         <span class="status complete" th:case="COMPLETE" >可观看</span>
         <span class="status upload-oss" th:case="UPLOAD_OSS">上传oss中</span>
         <span class="upload-time" th:text="${#dates.format(video.uploadTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+        <span><a th:href="@{/delete/{id}(id=${video.vId})}">删除</a></span>
     </li>
 </ul>
 <div class="page">

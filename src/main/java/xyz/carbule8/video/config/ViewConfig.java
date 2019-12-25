@@ -22,6 +22,6 @@ public class ViewConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AdminInterceptor()).addPathPatterns("/delete/**");
+        registry.addInterceptor(new AdminInterceptor()).addPathPatterns("/delete/**", "/list", "/list/**", "/list", "/upload");
     }
 }

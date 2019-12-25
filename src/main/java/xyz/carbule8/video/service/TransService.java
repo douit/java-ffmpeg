@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import xyz.carbule8.video.command.CaptureScreenshotsCommand;
-import xyz.carbule8.video.command.NewSliceUpCommand;
+import xyz.carbule8.video.command.SliceUpCommand;
 import xyz.carbule8.video.config.OSSConfig;
 import xyz.carbule8.video.config.VideoConfig;
 import xyz.carbule8.video.exception.CaptureException;
@@ -55,8 +55,8 @@ public class TransService {
         videoService.update(video);
         long start = System.currentTimeMillis(); // 任务开始时间
         try {
-//            new SliceUpCommand().execute(path + video.getvSuffix(), path);
-            new NewSliceUpCommand().execute(path + video.getvSuffix(), path);
+            new SliceUpCommand().execute(path + video.getvSuffix(), path);
+//            new NewSliceUpCommand().execute(path + video.getvSuffix(), path);
             File outfile = new File(path);
             if (outfile.list() == null || outfile.list().length <= 10) {
                 throw new TranscodingException("切片输出数量异常");
